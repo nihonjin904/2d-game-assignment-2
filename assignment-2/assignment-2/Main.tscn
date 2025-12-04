@@ -27,8 +27,9 @@ stretch_mode = 1
 [node name="Player" parent="." instance=ExtResource("3_player")]
 position = Vector2(576, 324)
 
-[node name="bgm" type="AudioStreamPlayer2D" parent="."]
+[node name="bgm" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_3dxm6")
 autoplay = true
 bus = "Music"
+
 

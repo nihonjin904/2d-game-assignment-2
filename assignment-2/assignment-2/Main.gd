@@ -23,6 +23,11 @@ var dev_press_timer = 0.0
 func _ready():
 	randomize()
 	
+	# Force set BGM bus
+	if has_node("bgm"):
+		$bgm.bus = "Music"
+
+	
 	# Set Map Boundaries
 	# 5x5 tiles of 2048x2048 = 10240x10240
 	# Centered at 0,0: -5120 to 5120

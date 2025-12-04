@@ -25,3 +25,6 @@ func _on_sfx_volume_changed(value):
 func _on_back_pressed():
 	emit_signal("back_pressed")
 	hide()
+
+
+

@@ -9,9 +9,11 @@ var direction = Vector2.RIGHT
 func _ready():
 	add_to_group("bullet")
 	
-	# 播放射擊音效
-	if shoot_sound:
-		shoot_sound.play()
+	# Force set SFX bus
+	if has_node("Shoot_Sound"):
+		$Shoot_Sound.bus = "SFX"
+		$Shoot_Sound.play()
+
 		
 	# 使用計時器進行自動清理（5秒後銷毀子彈）
 	get_tree().create_timer(5.0).timeout.connect(queue_free)

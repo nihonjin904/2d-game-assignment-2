@@ -12,31 +12,35 @@ const SAVE_PATH = "user://savegame.save"
 
 
 func _ready():
+	# Force load the bus layout
+	var bus_layout = load("res://default_bus_layout.tres")
+	if bus_layout:
+		AudioServer.set_bus_layout(bus_layout)
+		print("Global: Forced loaded default_bus_layout.tres")
+
 	# Initialize bus indices
 	music_bus_index = AudioServer.get_bus_index("Music")
 	sfx_bus_index = AudioServer.get_bus_index("SFX")
+
 	
-	# Create buses if they don't exist (fallback, though usually set in editor)
-	# Actually, we should assume they exist or create them.
-	# Creating them via code is complex because AudioServer layout is usually project setting.
-	# We will assume user (or I) will set them up in default_bus_layout.tres or we just use "Master" if missing.
-	# But the plan said "Implement Audio Settings (BGM, SFX Buses)".
-	# I should probably create a default_bus_layout.tres or just add them if possible?
-	# AudioServer.add_bus() can be used.
-	
+	# Fallback: Create buses if they don't exist (common issue in exports if layout isn't loaded)
 	if music_bus_index == -1:
 		AudioServer.add_bus()
 		music_bus_index = AudioServer.get_bus_count() - 1
 		AudioServer.set_bus_name(music_bus_index, "Music")
 		AudioServer.set_bus_send(music_bus_index, "Master")
+		print("Global: Created Music bus at index ", music_bus_index)
 		
 	if sfx_bus_index == -1:
 		AudioServer.add_bus()
 		sfx_bus_index = AudioServer.get_bus_count() - 1
 		AudioServer.set_bus_name(sfx_bus_index, "SFX")
 		AudioServer.set_bus_send(sfx_bus_index, "Master")
-		
+		print("Global: Created SFX bus at index ", sfx_bus_index)
+
+	
 	load_data()
+
 
 
 func unlock_cg(cg_id):
