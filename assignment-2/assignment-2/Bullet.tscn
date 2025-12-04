@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://cje2a7orgkwb"]
+[gd_scene load_steps=12 format=3 uid="uid://cje2a7orgkwb"]
 
 [ext_resource type="Script" uid="uid://dwi23bkr4u2jt" path="res://Bullet.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://biy7f0k5o5k5r" path="res://bullet_animation.png" id="2_4s4u5"]
+[ext_resource type="AudioStream" uid="uid://dwo24llbr8rbv" path="res://bullet_bgm.mp3" id="3_7281b"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(10, 10)
@@ -80,3 +81,7 @@ sprite_frames = SubResource("SpriteFrames_fd626")
 autoplay = "default"
 frame = 5
 frame_progress = 1.0
+
+[node name="Shoot_Sound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_7281b")
+volume_db = -12.403

@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://bek0334ydgc7f"]
 
-[ext_resource type="Script" path="res://Loot.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://deiuejgpamn0k" path="res://Loot.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c6r4kdmd27ufg" path="res://Gemini_Generated_Image_6aygik6aygik6ayg.png" id="2_tdn7b"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(10, 10)
@@ -14,6 +15,11 @@ offset_top = -5.0
 offset_right = 5.0
 offset_bottom = 5.0
 color = Color(0, 1, 0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="ColorRect"]
+position = Vector2(5, 4)
+scale = Vector2(0.023345951, 0.023345951)
+texture = ExtResource("2_tdn7b")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
