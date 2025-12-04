@@ -84,4 +84,5 @@ frame_progress = 1.0
 
 [node name="Shoot_Sound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("3_7281b")
-volume_db = -12.403
+bus = "SFX"
+

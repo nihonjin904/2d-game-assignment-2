@@ -15,6 +15,11 @@ var level_label: Label
 var boss_timer = 0.0
 var boss_interval = 60.0
 
+# Developer Mode
+var dev_press_count = 0
+var dev_press_timer = 0.0
+
+
 func _ready():
 	randomize()
 	
@@ -204,11 +209,23 @@ func create_game_over_ui():
 	game_over_layer.process_mode = Node.PROCESS_MODE_ALWAYS # Important: Allow input while paused
 	add_child(game_over_layer)
 	
-	# Background Dim
-	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0.5)
+	# Game Over Background (CG)
+	var bg = TextureRect.new()
+	
+	# Randomly select CG
+	var cg_index = randi() % 2
+	if cg_index == 0:
+		bg.texture = load("res://Game_Over_CG.png")
+		Global.unlock_cg("cg1")
+	else:
+		bg.texture = load("res://Game_Over_CG_2.png")
+		Global.unlock_cg("cg2")
+		
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	game_over_layer.add_child(bg)
+
 	
 	# Center Container for perfect centering
 	var center_container = CenterContainer.new()
@@ -234,18 +251,158 @@ func create_game_over_ui():
 	restart_btn.pressed.connect(_on_restart_pressed)
 	vbox.add_child(restart_btn)
 	
+	# Main Menu Button
+	var menu_btn = Button.new()
+	menu_btn.text = "Main Menu"
+	menu_btn.add_theme_font_size_override("font_size", 32)
+	menu_btn.pressed.connect(_on_main_menu_pressed)
+	vbox.add_child(menu_btn)
+	
 	# Exit Button
 	var exit_btn = Button.new()
+
 	exit_btn.text = "Exit"
 	exit_btn.add_theme_font_size_override("font_size", 32)
 	exit_btn.pressed.connect(_on_exit_pressed)
 	vbox.add_child(exit_btn)
 
+# Pause Menu Logic
+var pause_layer: CanvasLayer
+var settings_panel: Control
+
+func _input(event):
+	# Dev Mode
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_KP_0:
+			dev_press_count += 1
+			dev_press_timer = 2.0 # Reset timer window
+			print("Dev Mode: ", dev_press_count)
+			
+			if dev_press_count >= 5:
+				print("Dev Mode Activated: Showing Level Up Screen")
+				show_level_up_screen()
+				dev_press_count = 0
+	
+	# Pause Menu
+	if event.is_action_pressed("ui_cancel"):
+		toggle_pause()
+
+func toggle_pause():
+	if not pause_layer:
+		create_pause_menu()
+		
+	var is_paused = not get_tree().paused
+	get_tree().paused = is_paused
+	pause_layer.visible = is_paused
+	
+	if not is_paused:
+		# If unpausing, ensure settings is hidden and main pause menu is shown next time
+		if settings_panel:
+			settings_panel.hide()
+		# We might need to handle showing the main buttons again if we hid them for settings
+		var vbox = pause_layer.get_node("CenterContainer/VBoxContainer")
+		if vbox:
+			vbox.show()
+
+func create_pause_menu():
+	pause_layer = CanvasLayer.new()
+	pause_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_layer.visible = false
+	add_child(pause_layer)
+	
+	# Background Dim
+	var bg = ColorRect.new()
+	bg.color = Color(0, 0, 0, 0.5)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pause_layer.add_child(bg)
+	
+	# Center Container
+	var center_container = CenterContainer.new()
+	center_container.name = "CenterContainer"
+	center_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pause_layer.add_child(center_container)
+	
+	# VBox
+	var vbox = VBoxContainer.new()
+	vbox.name = "VBoxContainer"
+	vbox.add_theme_constant_override("separation", 20)
+	center_container.add_child(vbox)
+	
+	# Label
+	var label = Label.new()
+	label.text = "PAUSED"
+	label.add_theme_font_size_override("font_size", 64)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(label)
+	
+	# Resume
+	var resume_btn = Button.new()
+	resume_btn.text = "Resume"
+	resume_btn.add_theme_font_size_override("font_size", 32)
+	resume_btn.pressed.connect(_on_resume_pressed)
+	vbox.add_child(resume_btn)
+	
+	# Restart
+	var restart_btn = Button.new()
+
+	restart_btn.text = "Restart"
+	restart_btn.add_theme_font_size_override("font_size", 32)
+	restart_btn.pressed.connect(_on_restart_pressed)
+	vbox.add_child(restart_btn)
+	
+	# Settings
+	var settings_btn = Button.new()
+	settings_btn.text = "Settings"
+	settings_btn.add_theme_font_size_override("font_size", 32)
+	settings_btn.pressed.connect(_on_pause_settings_pressed)
+	vbox.add_child(settings_btn)
+	
+	# Main Menu Button
+	var menu_btn = Button.new()
+	menu_btn.text = "Main Menu"
+	menu_btn.add_theme_font_size_override("font_size", 32)
+	menu_btn.pressed.connect(_on_main_menu_pressed)
+	vbox.add_child(menu_btn)
+	
+	# Exit
+	var exit_btn = Button.new()
+
+	exit_btn.text = "Exit"
+	exit_btn.add_theme_font_size_override("font_size", 32)
+	exit_btn.pressed.connect(_on_exit_pressed)
+	vbox.add_child(exit_btn)
+	
+	# Settings Panel (Instance)
+	var settings_scene = load("res://SettingsPanel.tscn")
+	if settings_scene:
+		settings_panel = settings_scene.instantiate()
+		settings_panel.visible = false
+		settings_panel.back_pressed.connect(_on_pause_settings_back)
+		# Add to center container but hide it initially
+		# Actually, let's add it to pause_layer and center it manually or use anchors
+		pause_layer.add_child(settings_panel)
+
+func _on_pause_settings_pressed():
+	pause_layer.get_node("CenterContainer/VBoxContainer").hide()
+	settings_panel.show()
+
+func _on_pause_settings_back():
+	settings_panel.hide()
+	pause_layer.get_node("CenterContainer/VBoxContainer").show()
+
+func _on_resume_pressed():
+	toggle_pause()
+
 func _on_restart_pressed():
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
+func _on_main_menu_pressed():
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://MainMenu.tscn")
+
 func _on_exit_pressed():
+
 	get_tree().quit()
 
 # Level Up Logic
@@ -276,19 +433,3 @@ func _on_skill_selected(skill_name):
 	available_skills.erase(skill_name)
 	
 	get_tree().paused = false
-
-# Developer Mode
-var dev_press_count = 0
-var dev_press_timer = 0.0
-
-func _input(event):
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_KP_0:
-			dev_press_count += 1
-			dev_press_timer = 2.0 # Reset timer window
-			print("Dev Mode: ", dev_press_count)
-			
-			if dev_press_count >= 5:
-				print("Dev Mode Activated: Showing Level Up Screen")
-				show_level_up_screen()
-				dev_press_count = 0

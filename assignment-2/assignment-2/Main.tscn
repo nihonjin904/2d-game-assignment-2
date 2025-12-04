@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://bqfjohko8d4fa" path="res://Main.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://bg6o23ka6me8a" path="res://Enemy.tscn" id="2_enemy"]
-[ext_resource type="PackedScene" uid="uid://cgk6tu577txao" path="res://Player.tscn" id="3_player"]
-[ext_resource type="Texture2D" uid="uid://c7x6jdq0wdptm" path="res://Background.png" id="4_bg"]
-[ext_resource type="Script" path="res://SizeCheck.gd" id="5_size_check"]
+[ext_resource type="PackedScene" path="res://Player.tscn" id="3_player"]
+[ext_resource type="Texture2D" uid="uid://c7x6jdq0wdptm" path="res://background.png" id="4_bg"]
+[ext_resource type="Script" uid="uid://bfkna70thto2h" path="res://SizeCheck.gd" id="5_size_check"]
 [ext_resource type="AudioStream" uid="uid://ck2cnblya1gsm" path="res://bgm.mp3" id="6_3dxm6"]
 
 [node name="Main" type="Node2D"]
@@ -29,5 +29,6 @@ position = Vector2(576, 324)
 
 [node name="bgm" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_3dxm6")
-volume_db = -25.0
 autoplay = true
+bus = "Music"
+
