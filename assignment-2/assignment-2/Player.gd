@@ -245,7 +245,3 @@ func _process(delta):
 		if armor_cooldown_timer <= 0:
 			activate_armor()
 			print("Armor Regenerated!")
-
-
-
-
