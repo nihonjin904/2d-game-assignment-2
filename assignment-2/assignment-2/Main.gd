@@ -15,8 +15,17 @@ var level_label: Label
 var boss_timer = 0.0
 var boss_interval = 60.0
 
+const MAP_LIMIT = 5120
+
+var spawn_timer: Timer
+
+
+var difficulty_timer = 0.0
+
+
 # Developer Mode
 var dev_press_count = 0
+
 var dev_press_timer = 0.0
 
 
@@ -31,26 +40,26 @@ func _ready():
 	# Set Map Boundaries
 	# 5x5 tiles of 2048x2048 = 10240x10240
 	# Centered at 0,0: -5120 to 5120
-	var map_limit = 5120
-
+	
 	var player = $Player
 	if player and player.has_node("Camera2D"):
 		var camera = player.get_node("Camera2D")
-		camera.limit_left = -map_limit
-		camera.limit_top = -map_limit
-		camera.limit_right = map_limit
-		camera.limit_bottom = map_limit
+		camera.limit_left = -MAP_LIMIT
+		camera.limit_top = -MAP_LIMIT
+		camera.limit_right = MAP_LIMIT
+		camera.limit_bottom = MAP_LIMIT
 		
 	# Update Background size to cover the map
 	if has_node("Background"):
 		var bg = $Background
 		# Scale is 0.2, so we need 5x the size to cover the same area
-		var bg_limit = map_limit * 5
+		var bg_limit = MAP_LIMIT * 5
 		# We want the visual coverage to be from -map_limit to +map_limit
 		# So position should be -map_limit
 		# And size should be (map_limit * 2) * 5
 		bg.size = Vector2(bg_limit * 2, bg_limit * 2)
-		bg.position = Vector2(-map_limit, -map_limit)
+		bg.position = Vector2(-MAP_LIMIT, -MAP_LIMIT)
+
 		
 		print("BG Debug: Visible=", bg.visible, " Rect=", bg.get_rect(), " GlobalPos=", bg.global_position, " Scale=", bg.scale)
 
@@ -100,11 +109,12 @@ func _ready():
 	canvas_layer.add_child(xp_bar)
 
 	# Create a timer for spawning enemies
-	var timer = Timer.new()
-	timer.wait_time = 1.0 # Spawn every 1 second
-	timer.autostart = true
-	timer.timeout.connect(_on_spawn_timer_timeout)
-	add_child(timer)
+	spawn_timer = Timer.new()
+	spawn_timer.wait_time = 1.0 # Spawn every 1 second
+	spawn_timer.autostart = true
+	spawn_timer.timeout.connect(_on_spawn_timer_timeout)
+	add_child(spawn_timer)
+
 
 func _process(delta):
 	time_elapsed += delta
@@ -115,7 +125,15 @@ func _process(delta):
 		spawn_boss()
 		boss_timer = 0.0
 		
+	# Difficulty Scaler (Spawn Rate)
+	difficulty_timer += delta
+	if difficulty_timer >= 60.0:
+		difficulty_timer = 0.0
+		spawn_timer.wait_time *= 0.9
+		print("Difficulty Increased: Spawn Interval = ", spawn_timer.wait_time)
+		
 	update_ui()
+
 	
 	# Dev mode timer reset
 	if dev_press_count > 0:
@@ -157,19 +175,30 @@ func _on_spawn_timer_timeout():
 		return
 
 	# Spawn enemy at a random position outside the camera view
-	# Assuming a standard viewport size approx 1152x648, let's spawn 800 units away
-	var angle = randf() * TAU
-	var distance = 800.0
-	var spawn_pos = player.global_position + Vector2(1, 0).rotated(angle) * distance
+	# Retry up to 10 times to find a valid position inside the map
+	var spawn_pos = Vector2.ZERO
+	var valid_pos = false
 	
-	# Clamp spawn position to map limits
-	spawn_pos.x = clamp(spawn_pos.x, -5120, 5120)
-	spawn_pos.y = clamp(spawn_pos.y, -5120, 5120)
+	for i in range(10):
+		var angle = randf() * TAU
+		var distance = 800.0
+		var test_pos = player.global_position + Vector2(1, 0).rotated(angle) * distance
+		
+		# Check if inside map limits
+		if abs(test_pos.x) <= MAP_LIMIT and abs(test_pos.y) <= MAP_LIMIT:
+			spawn_pos = test_pos
+			valid_pos = true
+			break
+	
+	if not valid_pos:
+		# If we couldn't find a valid position, skip spawning this time
+		# Or we could clamp as a fallback, but user specifically asked not to spawn outside
+		return
 
-	
 	var enemy = enemy_scene.instantiate()
 	enemy.global_position = spawn_pos
 	add_child(enemy)
+
 
 func spawn_boss():
 	if not enemy_scene:
@@ -183,16 +212,29 @@ func spawn_boss():
 	if not player:
 		return
 		
-	var angle = randf() * PI * 2
-	var distance = 800 # Spawn off-screen
-	var spawn_pos = player.global_position + Vector2(cos(angle), sin(angle)) * distance
+	var spawn_pos = Vector2.ZERO
+	var valid_pos = false
 	
-	# Clamp spawn position to map limits
-	spawn_pos.x = clamp(spawn_pos.x, -5120, 5120)
-	spawn_pos.y = clamp(spawn_pos.y, -5120, 5120)
+	for i in range(10):
+		var angle = randf() * PI * 2
+		var distance = 800 # Spawn off-screen
+		var test_pos = player.global_position + Vector2(cos(angle), sin(angle)) * distance
+		
+		if abs(test_pos.x) <= MAP_LIMIT and abs(test_pos.y) <= MAP_LIMIT:
+			spawn_pos = test_pos
+			valid_pos = true
+			break
+			
+	if not valid_pos:
+		# For boss, we really want it to spawn. Fallback to clamping if retries fail.
+		var angle = randf() * PI * 2
+		spawn_pos = player.global_position + Vector2(cos(angle), sin(angle)) * 800
+		spawn_pos.x = clamp(spawn_pos.x, -MAP_LIMIT, MAP_LIMIT)
+		spawn_pos.y = clamp(spawn_pos.y, -MAP_LIMIT, MAP_LIMIT)
 
 	
 	boss.global_position = spawn_pos
+
 	
 	# Initialize boss stats
 	boss.init_boss(player.max_experience)

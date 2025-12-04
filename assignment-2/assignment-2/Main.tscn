@@ -29,7 +29,7 @@ position = Vector2(576, 324)
 
 [node name="bgm" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_3dxm6")
+volume_db = -20.0
 autoplay = true
-bus = "Music"
-
-
+bus = &"Music"
+parameters/looping = true

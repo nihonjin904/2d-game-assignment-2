@@ -73,7 +73,14 @@ func die():
 		var loot = loot_scene.instantiate()
 		loot.global_position = global_position
 		loot.xp_amount = xp_value
+		
+		# Tint loot red if boss
+		if is_boss:
+			loot.modulate = Color(1, 0, 0) # Red
+			loot.scale = Vector2(2, 2) # Make it bigger too!
+			
 		get_parent().call_deferred("add_child", loot)
+
 		
 	queue_free()      # Destroy enemy
 
