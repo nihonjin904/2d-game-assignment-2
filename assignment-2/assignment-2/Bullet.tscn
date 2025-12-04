@@ -1,14 +1,66 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=11 format=3 uid="uid://cje2a7orgkwb"]
 
-[ext_resource type="Script" path="res://Bullet.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dwi23bkr4u2jt" path="res://Bullet.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://biy7f0k5o5k5r" path="res://bullet_animation.png" id="2_4s4u5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(10, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7281b"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(0, 0, 416, 416)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u8st5"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(416, 0, 416, 416)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7awvy"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(832, 0, 416, 416)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1rjr3"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(0, 416, 416, 416)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3iaeh"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(416, 416, 416, 416)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a8g78"]
+atlas = ExtResource("2_4s4u5")
+region = Rect2(832, 416, 416, 416)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fd626"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7281b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u8st5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7awvy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1rjr3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3iaeh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a8g78")
+}],
+"loop": false,
+"name": &"default",
+"speed": 6.0
+}]
 
 [node name="Bullet" type="Area2D"]
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 offset_left = -5.0
 offset_top = -5.0
 offset_right = 5.0
@@ -19,3 +71,12 @@ color = Color(1, 1, 0, 1)
 shape = SubResource("RectangleShape2D_1")
 
 [node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Area2D"]
+scale = Vector2(0.2, 0.2)
+sprite_frames = SubResource("SpriteFrames_fd626")
+autoplay = "default"
+frame = 5
+frame_progress = 1.0
