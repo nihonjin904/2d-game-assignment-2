@@ -52,6 +52,12 @@ func _physics_process(delta):
 	
 	velocity = direction * speed
 	move_and_slide()
+	
+	# Clamp position to map boundaries
+	position.x = clamp(position.x, -5120, 5120)
+	position.y = clamp(position.y, -5120, 5120)
+
+
 
 	# Shooting
 	shoot_timer += delta

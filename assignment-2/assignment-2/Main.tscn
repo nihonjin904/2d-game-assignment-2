@@ -5,12 +5,18 @@
 [ext_resource type="PackedScene" path="res://Player.tscn" id="3_player"]
 [ext_resource type="Texture2D" uid="uid://be6bln57tqrpt" path="res://Background.png" id="4_bg"]
 [ext_resource type="Script" uid="uid://c3m7um1ileq8s" path="res://Background.gd" id="4_bg_script"]
+[ext_resource type="Script" path="res://SizeCheck.gd" id="5_size_check"]
 
 [node name="Main" type="Node2D"]
+
 script = ExtResource("1_script")
 enemy_scene = ExtResource("2_enemy")
 
+[node name="SizeCheck" type="Node" parent="."]
+script = ExtResource("5_size_check")
+
 [node name="Background" type="TextureRect" parent="."]
+
 offset_left = -2000.0
 offset_top = -2000.0
 offset_right = 18000.0
@@ -18,7 +24,9 @@ offset_bottom = 18000.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("4_bg")
 stretch_mode = 1
-script = ExtResource("4_bg_script")
+texture_repeat = 2
+
+
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 position = Vector2(576, 324)
