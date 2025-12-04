@@ -3,6 +3,8 @@ extends Area2D
 @export var speed = 100.0
 @export var loot_scene: PackedScene # Assign Loot.tscn here or load dynamically
 
+var speed_modifier = 1.0
+
 func _ready():
 	add_to_group("enemy")
 	# Connect signals via code to ensure they work even if user forgets in editor
@@ -17,7 +19,8 @@ func _physics_process(delta):
 	var player = get_tree().get_first_node_in_group("player")
 	if player:
 		var direction = global_position.direction_to(player.global_position)
-		position += direction * speed * delta
+		position += direction * speed * speed_modifier * delta
+
 
 func _on_area_entered(area):
 	# Bullet detection is handled in Bullet.gd usually, but can be here too.

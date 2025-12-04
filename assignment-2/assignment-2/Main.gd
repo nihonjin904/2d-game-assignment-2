@@ -54,6 +54,13 @@ func _ready():
 func _process(delta):
 	time_elapsed += delta
 	update_ui()
+	
+	# Dev mode timer reset
+	if dev_press_count > 0:
+		dev_press_timer -= delta
+		if dev_press_timer <= 0:
+			dev_press_count = 0
+			print("Dev Mode Reset")
 
 func update_ui():
 	if time_label:
@@ -149,3 +156,48 @@ func _on_restart_pressed():
 
 func _on_exit_pressed():
 	get_tree().quit()
+
+# Level Up Logic
+var level_up_scene = preload("res://LevelUpScreen.tscn")
+var available_skills = ["attack", "defense", "control", "fire_rate", "bullet_size", "move_speed", "small_player", "bullet_speed", "magnet"]
+
+
+
+
+func on_player_level_up(level):
+	# Trigger every 3 levels
+	if level % 3 == 0 and available_skills.size() > 0:
+		show_level_up_screen()
+
+func show_level_up_screen():
+	get_tree().paused = true
+	var level_up_screen = level_up_scene.instantiate()
+	add_child(level_up_screen)
+	level_up_screen.setup(available_skills)
+	level_up_screen.skill_selected.connect(_on_skill_selected)
+
+func _on_skill_selected(skill_name):
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		player.activate_skill(skill_name)
+		
+	# Remove from available skills
+	available_skills.erase(skill_name)
+	
+	get_tree().paused = false
+
+# Developer Mode
+var dev_press_count = 0
+var dev_press_timer = 0.0
+
+func _input(event):
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_KP_0:
+			dev_press_count += 1
+			dev_press_timer = 2.0 # Reset timer window
+			print("Dev Mode: ", dev_press_count)
+			
+			if dev_press_count >= 5:
+				print("Dev Mode Activated: Showing Level Up Screen")
+				show_level_up_screen()
+				dev_press_count = 0
