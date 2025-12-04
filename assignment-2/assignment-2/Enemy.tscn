@@ -1,14 +1,66 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=11 format=3 uid="uid://bg6o23ka6me8a"]
 
-[ext_resource type="Script" path="res://Enemy.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://rxu8bpxjvp57" path="res://Enemy.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://mn56v57a15cn" path="res://gobulin_animation.png" id="2_s7bn3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(30, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2hac7"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(0, 0, 728, 720)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e6d4v"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(728, 0, 728, 720)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qp131"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(1456, 0, 728, 720)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6do27"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(2184, 0, 728, 720)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rvmyp"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(728, 720, 728, 720)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2nxwx"]
+atlas = ExtResource("2_s7bn3")
+region = Rect2(1456, 720, 728, 720)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_52xpa"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2hac7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e6d4v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qp131")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6do27")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rvmyp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2nxwx")
+}],
+"loop": true,
+"name": &"default",
+"speed": 6.0
+}]
 
 [node name="Enemy" type="Area2D" groups=["enemy"]]
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 offset_left = -15.0
 offset_top = -15.0
 offset_right = 15.0
@@ -17,3 +69,10 @@ color = Color(1, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0.03159666, -2.968751)
+scale = Vector2(0.058246527, 0.058246523)
+sprite_frames = SubResource("SpriteFrames_52xpa")
+autoplay = "default"
+frame_progress = 0.42069203

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=23 format=3 uid="uid://cgk6tu577txao"]
 
-[ext_resource type="Script" path="res://Player.gd" id="1_script"]
-[ext_resource type="Script" path="res://SlowField.gd" id="1_slowfield"]
-[ext_resource type="Script" path="res://ArmorShield.gd" id="1_armorshield"]
-[ext_resource type="PackedScene" path="res://Bullet.tscn" id="2_bullet"]
+[ext_resource type="Script" uid="uid://dsuw8kipcswp3" path="res://ArmorShield.gd" id="1_armorshield"]
+[ext_resource type="Script" uid="uid://dp74p4kt6csrk" path="res://Player.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c17o1kc7t15ct" path="res://SlowField.gd" id="1_slowfield"]
+[ext_resource type="PackedScene" uid="uid://cje2a7orgkwb" path="res://Bullet.tscn" id="2_bullet"]
+[ext_resource type="Texture2D" uid="uid://c5d2kgky0qap2" path="res://player_animtation.png" id="5_cxr5p"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(40, 40)
@@ -17,19 +18,109 @@ radius = 30.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_magnet"]
 radius = 200.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_tdg3f"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1536, 1024, 512, 512)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_dtqjt"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1024, 1024, 512, 512)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_5ncpa"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(512, 1024, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wi0c6"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(0, 1024, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hp6x6"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1536, 512, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3tkgg"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1024, 512, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6ohk"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(512, 512, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oudfo"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(0, 512, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d6rpx"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1536, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r3kul"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(1024, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jatw7"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(512, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rv870"]
+atlas = ExtResource("5_cxr5p")
+region = Rect2(0, 0, 512, 512)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_efikj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tdg3f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dtqjt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5ncpa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wi0c6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hp6x6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3tkgg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l6ohk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oudfo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d6rpx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r3kul")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jatw7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rv870")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 11.0
+}]
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_script")
 bullet_scene = ExtResource("2_bullet")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 offset_left = -20.0
 offset_top = -20.0
 offset_right = 20.0
 offset_bottom = 20.0
-color = Color(0, 0, 1, 1)
+color = Color(0, 0, 0.7016299, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
@@ -66,6 +157,10 @@ monitoring = false
 shape = SubResource("CircleShape2D_magnet")
 disabled = true
 
-
-
-
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(4, -9)
+scale = Vector2(0.14890136, 0.14890136)
+sprite_frames = SubResource("SpriteFrames_efikj")
+animation = &"new_animation"
+autoplay = "new_animation"
+frame_progress = 0.94524896

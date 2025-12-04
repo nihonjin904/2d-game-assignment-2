@@ -1,3 +1,5 @@
+# Player.gd 腳本 - 修正為面向滑鼠並保持鍵盤移動
+
 extends CharacterBody2D
 
 @export var speed = 200.0
@@ -10,6 +12,26 @@ var shoot_timer = 0.0
 var is_invincible = false
 var invincibility_timer = 0.0
 var blink_timer = 0.0
+
+# 獲取 AnimatedSprite2D 節點的引用
+@onready var animated_sprite = $AnimatedSprite2D 
+
+# 技能相關變數 (確保它們在腳本頂部被初始化)
+var skill_triple_shot = false
+var skill_armor = false
+var skill_slow_field = false
+
+var bullet_scale_multiplier = 1.0
+var bullet_speed_multiplier = 1.0
+
+var is_armor_ready = false
+var armor_cooldown_timer = 0.0
+var armor_cooldown_duration = 30.0
+
+var experience = 0
+var max_experience = 100
+var level = 1
+
 
 func _ready():
 	current_lives = max_lives
@@ -34,9 +56,8 @@ func _on_slow_field_area_exited(area):
 		print("Enemy exited slow field")
 
 
-
 func _physics_process(delta):
-	# Movement - Explicitly checking keys to ensure WASD works without Input Map setup
+	# Movement
 	var direction = Vector2.ZERO
 	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
 		direction.y -= 1
@@ -50,8 +71,14 @@ func _physics_process(delta):
 	if direction.length() > 0:
 		direction = direction.normalized()
 	
+	# 🌟 移除：不再根據鍵盤方向翻轉角色
+	# _update_facing_direction(direction) 
+	
 	velocity = direction * speed
 	move_and_slide()
+	
+	# 🌟 新增：每幀更新角色面朝滑鼠的方向
+	_update_aim_direction() 
 
 	# Shooting
 	shoot_timer += delta
@@ -72,6 +99,37 @@ func _physics_process(delta):
 				$ColorRect.visible = not $ColorRect.visible
 				blink_timer = 0.1 # Blink every 0.1 seconds
 
+	# Armor Cooldown (從 _process 移到這裡)
+	if skill_armor and not is_armor_ready:
+		armor_cooldown_timer -= delta
+		if armor_cooldown_timer <= 0:
+			activate_armor()
+			print("Armor Regenerated!")
+
+# 🌟 新增函數：根據滑鼠位置更新角色的面朝方向
+func _update_aim_direction():
+	if !animated_sprite:
+		return
+		
+	# 獲取滑鼠的全局位置
+	var mouse_pos = get_global_mouse_position()
+	
+	# 計算從角色到滑鼠的相對X距離
+	var relative_x = mouse_pos.x - global_position.x
+	
+	if relative_x < 0:
+		# 滑鼠在左邊
+		animated_sprite.flip_h = true
+	elif relative_x > 0:
+		# 滑鼠在右邊
+		animated_sprite.flip_h = false
+
+
+# 舊的 _update_facing_direction 函數已經沒有用途，可以刪除或保留
+# func _update_facing_direction(move_direction: Vector2):
+# 	pass
+
+
 func shoot_at_mouse():
 	if bullet_scene:
 		var mouse_pos = get_global_mouse_position()
@@ -83,16 +141,19 @@ func shoot_at_mouse():
 			
 		for angle in angles:
 			var bullet = bullet_scene.instantiate()
-			get_parent().add_child(bullet)
+			get_parent().add_child(bullet) 
 			bullet.global_position = global_position
 			bullet.scale *= bullet_scale_multiplier
 			bullet.speed *= bullet_speed_multiplier
 			
 			var final_direction = base_direction.rotated(angle)
 
-			bullet.direction = final_direction
+			if bullet.has_method("set_direction"):
+				bullet.set_direction(final_direction)
+			else:
+				bullet.direction = final_direction
+			
 			bullet.rotation = final_direction.angle()
-
 
 
 func take_damage():
@@ -104,14 +165,11 @@ func take_damage():
 		print("Armor blocked damage (fallback)!")
 		start_invincibility()
 		return
-
-
 		
 	current_lives -= 1
 	print("Player hit! Lives left: ", current_lives)
 	
 	if current_lives <= 0:
-		# Call game_over on Main node (parent)
 		if get_parent().has_method("game_over"):
 			get_parent().game_over()
 		else:
@@ -125,13 +183,8 @@ func start_invincibility():
 	blink_timer = 0.0
 
 # XP System
-var experience = 0
-var max_experience = 100
-var level = 1
-
 func gain_experience(amount):
 	experience += amount
-	print("XP Gained: ", amount, " Total: ", experience, "/", max_experience)
 	if experience >= max_experience:
 		level_up()
 
@@ -140,25 +193,12 @@ func level_up():
 	level += 1
 	max_experience = int(max_experience * 1.2) # Increase required XP by 20%
 	print("Level Up! New Level: ", level)
-	# Optional: Heal on level up? Or just increase stats?
-	# For now just level up.
-	# Notify Main about level up
 	var main = get_tree().root.get_node("Main")
 	if main and main.has_method("on_player_level_up"):
 		main.on_player_level_up(level)
 
-# Skills
-var skill_triple_shot = false
-var skill_armor = false
-var skill_slow_field = false
 
-var bullet_scale_multiplier = 1.0
-var bullet_speed_multiplier = 1.0
-
-var is_armor_ready = false
-var armor_cooldown_timer = 0.0
-var armor_cooldown_duration = 30.0
-
+# Skills (保持不變)
 func activate_skill(skill_name):
 	if skill_name == "attack":
 		skill_triple_shot = true
@@ -201,15 +241,12 @@ func _on_magnet_field_area_entered(area):
 		area.attract_to(self)
 
 
-
-
 func activate_armor():
 	is_armor_ready = true
 	if has_node("ArmorShield"):
 		$ArmorShield.visible = true
 		$ArmorShield.monitoring = true
 		$ArmorShield/CollisionShape2D.disabled = false
-		# Connect signal if not already connected
 		if not $ArmorShield.area_entered.is_connected(_on_armor_shield_area_entered):
 			$ArmorShield.area_entered.connect(_on_armor_shield_area_entered)
 
@@ -224,24 +261,10 @@ func deactivate_armor():
 func _on_armor_shield_area_entered(area):
 	if is_armor_ready and area.is_in_group("enemy"):
 		print("Armor destroyed enemy!")
-		area.queue_free() # Destroy enemy
+		area.queue_free()
 		
-		# Notify Main about kill (optional, but good for score)
 		var main = get_tree().root.get_node("Main")
 		if main and main.has_method("add_kill"):
 			main.add_kill()
 			
 		deactivate_armor()
-
-func _process(delta):
-	# Armor Cooldown
-	if skill_armor and not is_armor_ready:
-		armor_cooldown_timer -= delta
-		
-		# Debug print every 1 second (approx)
-		if int(armor_cooldown_timer) != int(armor_cooldown_timer + delta):
-			print("Armor Cooldown: ", int(armor_cooldown_timer))
-			
-		if armor_cooldown_timer <= 0:
-			activate_armor()
-			print("Armor Regenerated!")
