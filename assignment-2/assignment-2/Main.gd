@@ -10,8 +10,43 @@ var kill_label: Label
 var xp_bar: ProgressBar
 var level_label: Label
 
+var boss_timer = 0.0
+var boss_interval = 60.0
+
 func _ready():
+	randomize()
+	
+	# Set Map Boundaries
+	# 5x5 tiles of 2048x2048 = 10240x10240
+	# Centered at 0,0: -5120 to 5120
+	var map_limit = 5120
+
+	var player = $Player
+	if player and player.has_node("Camera2D"):
+		var camera = player.get_node("Camera2D")
+		camera.limit_left = -map_limit
+		camera.limit_top = -map_limit
+		camera.limit_right = map_limit
+		camera.limit_bottom = map_limit
+		
+	# Update Background size to cover the map
+	if has_node("Background"):
+		var bg = $Background
+		# Scale is 0.2, so we need 5x the size to cover the same area
+		var bg_limit = map_limit * 5
+		# We want the visual coverage to be from -map_limit to +map_limit
+		# So position should be -map_limit
+		# And size should be (map_limit * 2) * 5
+		bg.size = Vector2(bg_limit * 2, bg_limit * 2)
+		bg.position = Vector2(-map_limit, -map_limit)
+		
+		print("BG Debug: Visible=", bg.visible, " Rect=", bg.get_rect(), " GlobalPos=", bg.global_position, " Scale=", bg.scale)
+
+
+
+	
 	# Create UI Layer
+
 	var canvas_layer = CanvasLayer.new()
 	add_child(canvas_layer)
 	
@@ -53,6 +88,13 @@ func _ready():
 
 func _process(delta):
 	time_elapsed += delta
+	
+	# Boss Spawner
+	boss_timer += delta
+	if boss_timer >= boss_interval:
+		spawn_boss()
+		boss_timer = 0.0
+		
 	update_ui()
 	
 	# Dev mode timer reset
@@ -95,9 +137,43 @@ func _on_spawn_timer_timeout():
 	var distance = 800.0
 	var spawn_pos = player.global_position + Vector2(1, 0).rotated(angle) * distance
 	
+	# Clamp spawn position to map limits
+	spawn_pos.x = clamp(spawn_pos.x, -5120, 5120)
+	spawn_pos.y = clamp(spawn_pos.y, -5120, 5120)
+
+	
 	var enemy = enemy_scene.instantiate()
 	enemy.global_position = spawn_pos
 	add_child(enemy)
+
+func spawn_boss():
+	if not enemy_scene:
+		return
+		
+	var boss = enemy_scene.instantiate()
+	add_child(boss)
+	
+	# Spawn randomly around player
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return
+		
+	var angle = randf() * PI * 2
+	var distance = 800 # Spawn off-screen
+	var spawn_pos = player.global_position + Vector2(cos(angle), sin(angle)) * distance
+	
+	# Clamp spawn position to map limits
+	spawn_pos.x = clamp(spawn_pos.x, -5120, 5120)
+	spawn_pos.y = clamp(spawn_pos.y, -5120, 5120)
+
+	
+	boss.global_position = spawn_pos
+	
+	# Initialize boss stats
+	boss.init_boss(player.max_experience)
+	
+	print("BOSS SPAWNED!")
+
 
 # Game Over Logic
 var game_over_layer: CanvasLayer

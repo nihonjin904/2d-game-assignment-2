@@ -1,4 +1,4 @@
-# Player.gd 腳本 - 修正為面向滑鼠並保持鍵盤移動
+# Player.gd 腳本 - 最終合併版本 (滑鼠面向 + 地圖邊界限制)
 
 extends CharacterBody2D
 
@@ -70,15 +70,25 @@ func _physics_process(delta):
 	
 	if direction.length() > 0:
 		direction = direction.normalized()
-	
-	# 🌟 移除：不再根據鍵盤方向翻轉角色
-	# _update_facing_direction(direction) 
+		
+		# 🌟 新增：移動時播放 walk 動畫
+		if animated_sprite:
+			animated_sprite.play("walk") 
+	else:
+		# 🌟 新增：停止移動時播放 idle 動畫
+		if animated_sprite:
+			animated_sprite.play("idle")
 	
 	velocity = direction * speed
 	move_and_slide()
 	
-	# 🌟 新增：每幀更新角色面朝滑鼠的方向
+	# 🌟 合併衝突：您的滑鼠面向邏輯
 	_update_aim_direction() 
+	
+	# 🌟 合併衝突：朋友的地圖邊界限制邏輯
+	position.x = clamp(position.x, -5120, 5120)
+	position.y = clamp(position.y, -5120, 5120)
+	
 
 	# Shooting
 	shoot_timer += delta
@@ -102,11 +112,15 @@ func _physics_process(delta):
 	# Armor Cooldown (從 _process 移到這裡)
 	if skill_armor and not is_armor_ready:
 		armor_cooldown_timer -= delta
+		
+		# 朋友的程式碼中有獨立的 _process 處理 Armor Cooldown。為了簡潔，我們將其保留在 _physics_process 中運行
+		# 如果您想使用朋友的獨立 _process 函數，請見下方的注釋說明。
+			
 		if armor_cooldown_timer <= 0:
 			activate_armor()
 			print("Armor Regenerated!")
 
-# 🌟 新增函數：根據滑鼠位置更新角色的面朝方向
+# 🌟 您的滑鼠面向邏輯
 func _update_aim_direction():
 	if !animated_sprite:
 		return
@@ -124,10 +138,7 @@ func _update_aim_direction():
 		# 滑鼠在右邊
 		animated_sprite.flip_h = false
 
-
-# 舊的 _update_facing_direction 函數已經沒有用途，可以刪除或保留
-# func _update_facing_direction(move_direction: Vector2):
-# 	pass
+# 由於您的 `_update_facing_direction` 已經被替換為 `_update_aim_direction`，所以原函數可以刪除。
 
 
 func shoot_at_mouse():
@@ -182,7 +193,7 @@ func start_invincibility():
 	invincibility_timer = 3.0
 	blink_timer = 0.0
 
-# XP System
+# XP System (與朋友版本一致)
 func gain_experience(amount):
 	experience += amount
 	if experience >= max_experience:
