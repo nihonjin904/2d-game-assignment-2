@@ -40,4 +40,3 @@ func setup(available_skills: Array):
 func _on_skill_button_pressed(skill_name):
 	skill_selected.emit(skill_name)
 	queue_free()
-

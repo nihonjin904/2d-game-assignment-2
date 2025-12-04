@@ -1,5 +1,4 @@
-# Player.gd 腳本 - 最終合併版本 (滑鼠面向 + 地圖邊界限制)
-
+# Player.gd 腳本 - 最終修正版（包含所有功能、滑鼠面向、地圖邊界和正確的閃爍）
 extends CharacterBody2D
 
 @export var speed = 200.0
@@ -13,10 +12,11 @@ var is_invincible = false
 var invincibility_timer = 0.0
 var blink_timer = 0.0
 
-# 獲取 AnimatedSprite2D 節點的引用
+# 🌟 獲取 AnimatedSprite2D 節點的引用
+# 如果錯誤持續，請檢查 Player 場景下 AnimatedSprite2D 的名稱是否是 "AnimatedSprite2D"
 @onready var animated_sprite = $AnimatedSprite2D 
 
-# 技能相關變數 (確保它們在腳本頂部被初始化)
+# 技能相關變數
 var skill_triple_shot = false
 var skill_armor = false
 var skill_slow_field = false
@@ -36,12 +36,11 @@ var level = 1
 func _ready():
 	current_lives = max_lives
 	
-	# Connect SlowField signals if node exists (it will be added in scene)
+	# Connect SlowField signals if node exists
 	if has_node("SlowField"):
-		# Enemy is an Area2D, so we need area_entered, not body_entered
 		$SlowField.area_entered.connect(_on_slow_field_area_entered)
 		$SlowField.area_exited.connect(_on_slow_field_area_exited)
-		$SlowField.monitoring = false # Disabled by default
+		$SlowField.monitoring = false
 		$SlowField/CollisionShape2D.disabled = true
 		$SlowField.visible = false
 
@@ -55,7 +54,7 @@ func _on_slow_field_area_exited(area):
 		area.speed_modifier = 1.0 # Restore speed
 		print("Enemy exited slow field")
 
-
+# 🌟 使用 _physics_process 處理所有移動和碰撞相關的邏輯
 func _physics_process(delta):
 	# Movement
 	var direction = Vector2.ZERO
@@ -70,22 +69,21 @@ func _physics_process(delta):
 	
 	if direction.length() > 0:
 		direction = direction.normalized()
-		
-		# 🌟 新增：移動時播放 walk 動畫
+		# 動畫：移動時播放 walk
 		if animated_sprite:
 			animated_sprite.play("walk") 
 	else:
-		# 🌟 新增：停止移動時播放 idle 動畫
+		# 動畫：停止時播放 idle
 		if animated_sprite:
 			animated_sprite.play("idle")
 	
 	velocity = direction * speed
 	move_and_slide()
 	
-	# 🌟 合併衝突：您的滑鼠面向邏輯
+	# 面向滑鼠
 	_update_aim_direction() 
 	
-	# 🌟 合併衝突：朋友的地圖邊界限制邏輯
+	# 地圖邊界限制
 	position.x = clamp(position.x, -5120, 5120)
 	position.y = clamp(position.y, -5120, 5120)
 	
@@ -101,34 +99,35 @@ func _physics_process(delta):
 		invincibility_timer -= delta
 		if invincibility_timer <= 0:
 			is_invincible = false
-			$ColorRect.visible = true # Ensure visible when invincibility ends
+			# 修正閃爍結束
+			if animated_sprite:
+				animated_sprite.visible = true 
 		else:
 			# Blink effect
 			blink_timer -= delta
 			if blink_timer <= 0:
-				$ColorRect.visible = not $ColorRect.visible
+				# 修正閃爍
+				if animated_sprite:
+					animated_sprite.visible = not animated_sprite.visible 
 				blink_timer = 0.1 # Blink every 0.1 seconds
 
-	# Armor Cooldown (從 _process 移到這裡)
+# 🌟 使用 _process 處理不依賴物理運算的邏輯，例如冷卻時間
+# 修正錯誤 1: 將參數改為 _delta，避免 Godot 警告
+func _process(_delta):
+	# Armor Cooldown
 	if skill_armor and not is_armor_ready:
-		armor_cooldown_timer -= delta
-		
-		# 朋友的程式碼中有獨立的 _process 處理 Armor Cooldown。為了簡潔，我們將其保留在 _physics_process 中運行
-		# 如果您想使用朋友的獨立 _process 函數，請見下方的注釋說明。
-			
+		armor_cooldown_timer -= _delta
 		if armor_cooldown_timer <= 0:
 			activate_armor()
 			print("Armor Regenerated!")
 
-# 🌟 您的滑鼠面向邏輯
+
+# 🌟 您的滑鼠面向邏輯 (修正錯誤 3: 確保函數存在)
 func _update_aim_direction():
 	if !animated_sprite:
 		return
 		
-	# 獲取滑鼠的全局位置
 	var mouse_pos = get_global_mouse_position()
-	
-	# 計算從角色到滑鼠的相對X距離
 	var relative_x = mouse_pos.x - global_position.x
 	
 	if relative_x < 0:
@@ -137,8 +136,6 @@ func _update_aim_direction():
 	elif relative_x > 0:
 		# 滑鼠在右邊
 		animated_sprite.flip_h = false
-
-# 由於您的 `_update_facing_direction` 已經被替換為 `_update_aim_direction`，所以原函數可以刪除。
 
 
 func shoot_at_mouse():
@@ -192,8 +189,12 @@ func start_invincibility():
 	is_invincible = true
 	invincibility_timer = 3.0
 	blink_timer = 0.0
+	
+	# 確保精靈在開始閃爍時是可見的
+	if animated_sprite:
+		animated_sprite.visible = true 
 
-# XP System (與朋友版本一致)
+# XP System
 func gain_experience(amount):
 	experience += amount
 	if experience >= max_experience:
@@ -202,7 +203,7 @@ func gain_experience(amount):
 func level_up():
 	experience -= max_experience
 	level += 1
-	max_experience = int(max_experience * 1.2) # Increase required XP by 20%
+	max_experience = int(max_experience * 1.2)
 	print("Level Up! New Level: ", level)
 	var main = get_tree().root.get_node("Main")
 	if main and main.has_method("on_player_level_up"):

@@ -22,4 +22,3 @@ func _on_body_entered(body):
 		if body.has_method("gain_experience"):
 			body.gain_experience(xp_amount)
 		queue_free()
-

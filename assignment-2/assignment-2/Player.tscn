@@ -163,4 +163,4 @@ scale = Vector2(0.14890136, 0.14890136)
 sprite_frames = SubResource("SpriteFrames_efikj")
 animation = &"new_animation"
 autoplay = "new_animation"
-frame_progress = 0.94524896
+frame_progress = 0.040033154

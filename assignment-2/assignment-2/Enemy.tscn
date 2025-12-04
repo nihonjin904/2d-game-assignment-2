@@ -1,10 +1,35 @@
-[gd_scene load_steps=11 format=3 uid="uid://bg6o23ka6me8a"]
+[gd_scene load_steps=18 format=3 uid="uid://bg6o23ka6me8a"]
 
 [ext_resource type="Script" uid="uid://rxu8bpxjvp57" path="res://Enemy.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://icwdh023wmoq" path="res://gobulinking.png" id="2_2hac7"]
 [ext_resource type="Texture2D" uid="uid://mn56v57a15cn" path="res://gobulin_animation.png" id="2_s7bn3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(30, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_52xpa"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(0, 0, 512, 682)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jdgko"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(512, 0, 512, 682)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j4qr3"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(1024, 0, 512, 682)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_73x2u"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(1536, 0, 512, 682)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2iwxp"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(0, 682, 512, 682)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4v6dm"]
+atlas = ExtResource("2_2hac7")
+region = Rect2(1024, 682, 512, 682)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2hac7"]
 atlas = ExtResource("2_s7bn3")
@@ -32,6 +57,29 @@ region = Rect2(1456, 720, 728, 720)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_52xpa"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_52xpa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jdgko")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j4qr3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_73x2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2iwxp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4v6dm")
+}],
+"loop": true,
+"name": &"Enemy_Frames.tres",
+"speed": 3.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2hac7")
@@ -75,4 +123,4 @@ position = Vector2(0.03159666, -2.968751)
 scale = Vector2(0.058246527, 0.058246523)
 sprite_frames = SubResource("SpriteFrames_52xpa")
 autoplay = "default"
-frame_progress = 0.42069203
+frame_progress = 0.24126904

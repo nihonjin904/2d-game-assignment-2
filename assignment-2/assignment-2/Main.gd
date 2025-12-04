@@ -11,7 +11,7 @@ var xp_bar: ProgressBar
 var level_label: Label
 
 var boss_timer = 0.0
-var boss_interval = 60.0
+var boss_interval = 2.0
 
 func _ready():
 	randomize()
