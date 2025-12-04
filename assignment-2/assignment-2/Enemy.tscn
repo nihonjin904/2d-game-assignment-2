@@ -7,6 +7,16 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(30, 30)
 
+[sub_resource type="Gradient" id="Gradient_shadow"]
+colors = PackedColorArray(0, 0, 0, 0.6, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_shadow"]
+gradient = SubResource("Gradient_shadow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_52xpa"]
 atlas = ExtResource("2_2hac7")
 region = Rect2(0, 0, 512, 682)
@@ -117,6 +127,12 @@ color = Color(1, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+position = Vector2(0, 15)
+scale = Vector2(0.6, 0.3)
+texture = SubResource("GradientTexture2D_shadow")
+
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0.03159666, -2.968751)

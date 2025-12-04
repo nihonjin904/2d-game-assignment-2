@@ -1,13 +1,14 @@
-[gd_scene load_steps=7 format=3 uid="uid://dudvbmua4auac"]
+[gd_scene load_steps=6 format=3 uid="uid://dudvbmua4auac"]
 
 [ext_resource type="Script" uid="uid://bqfjohko8d4fa" path="res://Main.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://bg6o23ka6me8a" path="res://Enemy.tscn" id="2_enemy"]
-[ext_resource type="PackedScene" uid="uid://cgk6tu577txao" path="res://Player.tscn" id="3_player"]
-[ext_resource type="Texture2D" uid="uid://b5u0tsjqvwapa" path="res://Background.png" id="4_bg"]
+[ext_resource type="PackedScene" path="res://Enemy.tscn" id="2_enemy"]
+[ext_resource type="PackedScene" path="res://Player.tscn" id="3_player"]
+[ext_resource type="Texture2D" uid="uid://be6bln57tqrpt" path="res://Background.png" id="4_bg"]
+[ext_resource type="Script" uid="uid://c3m7um1ileq8s" path="res://Background.gd" id="4_bg_script"]
 [ext_resource type="Script" path="res://SizeCheck.gd" id="5_size_check"]
-[ext_resource type="AudioStream" uid="uid://ck2cnblya1gsm" path="res://bgm.mp3" id="6_3dxm6"]
 
 [node name="Main" type="Node2D"]
+
 script = ExtResource("1_script")
 enemy_scene = ExtResource("2_enemy")
 
@@ -15,7 +16,7 @@ enemy_scene = ExtResource("2_enemy")
 script = ExtResource("5_size_check")
 
 [node name="Background" type="TextureRect" parent="."]
-texture_repeat = 2
+
 offset_left = -2000.0
 offset_top = -2000.0
 offset_right = 18000.0
@@ -23,10 +24,9 @@ offset_bottom = 18000.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("4_bg")
 stretch_mode = 1
+texture_repeat = 2
+
+
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 position = Vector2(576, 324)
-
-[node name="Area_BGM" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("6_3dxm6")
-volume_db = 2.863

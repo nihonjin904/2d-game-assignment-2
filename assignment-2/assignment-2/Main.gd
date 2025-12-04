@@ -7,11 +7,13 @@ var time_elapsed = 0.0
 var kills = 0
 var time_label: Label
 var kill_label: Label
+var hp_label: Label
 var xp_bar: ProgressBar
+
 var level_label: Label
 
 var boss_timer = 0.0
-var boss_interval = 2.0
+var boss_interval = 60.0
 
 func _ready():
 	randomize()
@@ -50,7 +52,15 @@ func _ready():
 	var canvas_layer = CanvasLayer.new()
 	add_child(canvas_layer)
 	
+	# Create HP Label
+	hp_label = Label.new()
+	hp_label.position = Vector2(20, 20) # Top Left
+	hp_label.modulate = Color(0, 1, 0) # Green
+	hp_label.add_theme_font_size_override("font_size", 24)
+	canvas_layer.add_child(hp_label)
+	
 	# Create Time Label
+
 	time_label = Label.new()
 	time_label.position = Vector2(500, 20) # Top Center-ish
 	time_label.modulate = Color(1, 1, 1)
@@ -114,11 +124,16 @@ func update_ui():
 		
 	# Update XP Bar
 	var player = get_tree().get_first_node_in_group("player")
-	if player and xp_bar:
-		xp_bar.max_value = player.max_experience
-		xp_bar.value = player.experience
+	if player:
+		if hp_label:
+			hp_label.text = "HP: %d/%d" % [player.current_lives, player.max_lives]
+			
+		if xp_bar:
+			xp_bar.max_value = player.max_experience
+			xp_bar.value = player.experience
 		if level_label:
 			level_label.text = "Level: %d" % player.level
+
 
 func add_kill():
 	kills += 1
