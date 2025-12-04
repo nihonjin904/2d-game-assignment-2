@@ -26,7 +26,8 @@ var difficulty_timer = 0.0
 # Developer Mode
 var dev_press_count = 0
 
-var dev_press_timer = 0.0a
+var dev_press_timer = 0.0
+
 
 
 func _ready():
