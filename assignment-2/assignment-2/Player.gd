@@ -133,9 +133,8 @@ func _physics_process(delta):
 				# 修正閃爍
 				if animated_sprite:
 					animated_sprite.visible = not animated_sprite.visible 
-				if animated_sprite:
-					animated_sprite.visible = not animated_sprite.visible 
 				blink_timer = 0.1 # Blink every 0.1 seconds
+
 
 	# Dash Logic
 	if is_dashing:

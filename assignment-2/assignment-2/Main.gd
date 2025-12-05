@@ -76,24 +76,32 @@ func _ready():
 	
 	# Create HP Label
 	hp_label = Label.new()
-	hp_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	hp_label.position = Vector2(20, 20) # Offset from anchor
+	hp_label.anchor_left = 0.0
+	hp_label.anchor_top = 0.0
+	hp_label.offset_left = 20
+	hp_label.offset_top = 20
 	hp_label.modulate = Color(0, 1, 0) # Green
 	hp_label.add_theme_font_size_override("font_size", 24)
 	canvas_layer.add_child(hp_label)
 	
 	# Create Time Label
 	time_label = Label.new()
-	time_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	time_label.position = Vector2(-50, 20) # Centered roughly
+	time_label.anchor_left = 0.5
+	time_label.anchor_top = 0.0
+	time_label.anchor_right = 0.5
+	time_label.offset_left = -50 # Center it (assuming width ~100)
+	time_label.offset_top = 20
 	time_label.modulate = Color(1, 1, 1)
 	time_label.add_theme_font_size_override("font_size", 24)
 	canvas_layer.add_child(time_label)
 	
 	# Create Kill Label
 	kill_label = Label.new()
-	kill_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	kill_label.position = Vector2(-150, 20) # Offset from right
+	kill_label.anchor_left = 1.0
+	kill_label.anchor_top = 0.0
+	kill_label.anchor_right = 1.0
+	kill_label.offset_left = -150 # 150px from right
+	kill_label.offset_top = 20
 	kill_label.modulate = Color(1, 0, 0) # Red for kills
 	kill_label.add_theme_font_size_override("font_size", 24)
 	canvas_layer.add_child(kill_label)
@@ -102,21 +110,25 @@ func _ready():
 	level_label = Label.new()
 	level_label.text = "Level: 1"
 	level_label.add_theme_font_size_override("font_size", 20)
-	level_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	level_label.position = Vector2(20, -40) # Offset from bottom
+	level_label.anchor_left = 0.0
+	level_label.anchor_top = 1.0
+	level_label.anchor_right = 0.0
+	level_label.anchor_bottom = 1.0
+	level_label.offset_left = 20
+	level_label.offset_top = -50
 	canvas_layer.add_child(level_label)
 	
 	# Create XP Bar (Bottom, Green, Right of Level Label)
 	xp_bar = ProgressBar.new()
-	xp_bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	xp_bar.position = Vector2(120, -35) # Offset from bottom
-	xp_bar.size = Vector2(1000, 20) # Width will be handled by anchors mostly but let's keep it simple
-	# Actually, anchors are better.
 	xp_bar.anchor_left = 0.1
 	xp_bar.anchor_right = 0.9
+	xp_bar.anchor_top = 1.0
 	xp_bar.anchor_bottom = 1.0
-	xp_bar.offset_bottom = -20
+	xp_bar.offset_left = 0
+	xp_bar.offset_right = 0
 	xp_bar.offset_top = -40
+	xp_bar.offset_bottom = -20
+
 	
 	xp_bar.show_percentage = false
 	xp_bar.modulate = Color(0, 1, 0) # Green
