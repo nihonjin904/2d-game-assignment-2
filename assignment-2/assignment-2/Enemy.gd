@@ -54,8 +54,25 @@ func _on_area_entered(area):
 	# Bullet detection is handled in Bullet.gd usually, but can be here too.
 	# If Bullet is an Area2D and in group "bullet"
 	if area.is_in_group("bullet"):
-		area.queue_free() # Destroy bullet
-		take_damage(1)
+		if "is_explosive" in area and area.is_explosive:
+			# AOE Damage
+			var radius = area.explosion_radius
+			var center = area.global_position
+			
+			# Find all enemies in radius
+			var enemies = get_tree().get_nodes_in_group("enemy")
+			for enemy in enemies:
+				if enemy.global_position.distance_to(center) <= radius:
+					enemy.take_damage(3) # Fireball deals 3 damage
+					print("AOE Hit on ", enemy.name)
+					
+			area.queue_free() # Fireball explodes on contact
+		elif "pierce_count" in area and area.pierce_count > 0:
+			area.pierce_count -= 1
+			take_damage(1)
+		else:
+			area.queue_free() # Destroy bullet
+			take_damage(1)
 
 func take_damage(amount):
 	current_hp -= amount

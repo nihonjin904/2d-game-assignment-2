@@ -11,7 +11,15 @@ var skill_names = {
 	"move_speed": "Move Speed (+50%)",
 	"small_player": "Tiny Player (50% Size)",
 	"bullet_speed": "Bullet Speed (+10%)",
-	"magnet": "Magnet (Attract Loot)"
+	"magnet": "Magnet (Attract Loot)",
+	"heal": "Heal (+1 HP)",
+	"max_hp": "Max HP (+1 Max HP & Heal)",
+	"piercing": "Piercing (+1 Pierce)",
+	"regeneration": "Regeneration (Restore HP over time)",
+	"multishot": "Arcane Volley (+1 Projectile)",
+	"fireball": "Fireball (Explosive AOE)",
+	"lightning_chain": "Thor's Hammer (Chain Lightning)",
+	"lightning_area": "Overload (Lightning Range +25%)"
 }
 
 
@@ -25,8 +33,16 @@ func setup(available_skills: Array):
 		if child is Button:
 			child.queue_free()
 			
+	# Randomly select 3 skills
+	var skills_to_show = []
+	var pool = available_skills.duplicate()
+	pool.shuffle()
+	
+	for i in range(min(3, pool.size())):
+		skills_to_show.append(pool[i])
+			
 	# Create new buttons
-	for skill in available_skills:
+	for skill in skills_to_show:
 		var btn = Button.new()
 		if skill in skill_names:
 			btn.text = skill_names[skill]

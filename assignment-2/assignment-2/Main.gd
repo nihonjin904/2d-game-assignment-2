@@ -16,6 +16,8 @@ var boss_timer = 0.0
 var boss_interval = 60.0
 
 const MAP_LIMIT = 5120
+const MAX_ENEMIES = 600
+const DESPAWN_DISTANCE = 2500.0
 
 var spawn_timer: Timer
 
@@ -153,7 +155,33 @@ func _process(delta):
 		dev_press_timer -= delta
 		if dev_press_timer <= 0:
 			dev_press_count = 0
+			dev_press_count = 0
 			print("Dev Mode Reset")
+
+	# Optimization: Despawn far entities
+	if Engine.get_frames_per_second() < 60 or time_elapsed > 300: # Only check aggressively if FPS drops or game is long
+		cleanup_far_entities()
+
+func cleanup_far_entities():
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return
+		
+	var player_pos = player.global_position
+	
+	# Cleanup Enemies
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	if enemies.size() > MAX_ENEMIES:
+		for enemy in enemies:
+			if enemy.global_position.distance_to(player_pos) > DESPAWN_DISTANCE:
+				enemy.queue_free()
+				
+	# Cleanup Loot (Optional, but good for performance)
+	var loots = get_tree().get_nodes_in_group("loot")
+	if loots.size() > 500: # Cap loot too
+		for loot in loots:
+			if loot.global_position.distance_to(player_pos) > DESPAWN_DISTANCE:
+				loot.queue_free()
 
 func update_ui():
 	if time_label:
@@ -185,6 +213,10 @@ func _on_spawn_timer_timeout():
 		
 	var player = get_tree().get_first_node_in_group("player")
 	if not player:
+		return
+
+	# Optimization: Check Enemy Cap
+	if get_tree().get_nodes_in_group("enemy").size() >= MAX_ENEMIES:
 		return
 
 	# Spawn enemy at a random position outside the camera view
@@ -250,9 +282,29 @@ func spawn_boss():
 
 	
 	# Initialize boss stats
-	boss.init_boss(player.max_experience)
-	
-	print("BOSS SPAWNED!")
+	# Random Boss Type
+	var boss_type = randi() % 3
+	if boss_type == 0:
+		# Goblin King (Normal)
+		boss.init_boss(player.max_experience)
+		print("BOSS SPAWNED: Goblin King")
+	elif boss_type == 1:
+		# Red Berserker (Fast, High Dmg)
+		boss.init_boss(player.max_experience)
+		boss.modulate = Color(1, 0.2, 0.2) # Red
+		boss.speed *= 1.5
+		boss.max_hp *= 0.8
+		boss.current_hp = boss.max_hp
+		print("BOSS SPAWNED: Red Berserker")
+	else:
+		# Blue Tank (Slow, High HP)
+		boss.init_boss(player.max_experience)
+		boss.modulate = Color(0.2, 0.2, 1) # Blue
+		boss.speed *= 0.5
+		boss.max_hp *= 2.0
+		boss.current_hp = boss.max_hp
+		boss.scale *= 1.2
+		print("BOSS SPAWNED: Blue Tank")
 
 
 # Game Over Logic
@@ -467,7 +519,7 @@ func _on_exit_pressed():
 
 # Level Up Logic
 var level_up_scene = preload("res://LevelUpScreen.tscn")
-var available_skills = ["attack", "defense", "control", "fire_rate", "bullet_size", "move_speed", "small_player", "bullet_speed", "magnet"]
+var available_skills = ["attack", "defense", "control", "fire_rate", "bullet_size", "move_speed", "small_player", "bullet_speed", "magnet", "heal", "max_hp", "piercing", "regeneration", "multishot", "fireball", "lightning_chain", "lightning_area"]
 
 
 
@@ -489,7 +541,15 @@ func _on_skill_selected(skill_name):
 	if player:
 		player.activate_skill(skill_name)
 		
+		# Cap Multi-shot
+		if skill_name == "multishot" and player.projectile_count >= 5:
+			available_skills.erase("multishot")
+		
 	# Remove from available skills
-	available_skills.erase(skill_name)
+	# Remove from available skills
+	# Remove from available skills ONLY if it's a unique skill
+	var unique_skills = ["attack", "defense", "control", "magnet", "fireball", "lightning_chain"]
+	if skill_name in unique_skills:
+		available_skills.erase(skill_name)
 	
 	get_tree().paused = false

@@ -2,6 +2,9 @@ extends Area2D
 
 @export var speed = 400.0
 var direction = Vector2.RIGHT
+var pierce_count = 0
+var is_explosive = false
+var explosion_radius = 100.0
 
 # 🌟 新增對 AudioStreamPlayer2D 節點的引用
 @onready var shoot_sound = $Shoot_Sound
